@@ -55,7 +55,7 @@ class SelfAttentionLayer(nn.Module):
     
     
 
-   def forward(self, hidden_states, attention_mask):
+    def forward(self, hidden_states, attention_mask):
         mixed_query_layer = self.query(hidden_states)
         mixed_key_layer = self.key(hidden_states)
         mixed_value_layer = self.value(hidden_states)
