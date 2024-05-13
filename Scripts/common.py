@@ -25,6 +25,7 @@ def get_parser():
     parser.add_argument("--distilbert_hidden", default=768, type=int, help='Number of layer for XLNet')
     parser.add_argument("--albert_hidden", default=768, type=int, help='Number of layer for Albert') #Newly_Added
     parser.add_argument("--num_attention_heads", default=12, type=int, help='Number of attention heads') #Newly_Added_For_Attention
+    parser.add_argument("--attention_dropout", default=0.1, type=float, help='Dropout probability for attention layers') #NewlyAddedbased on error
 
     parser.add_argument("--ensemble_type", type=str, default="max-voting", help="Ensemble type - max-voting or averaging")
 
