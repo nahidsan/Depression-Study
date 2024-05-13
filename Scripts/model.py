@@ -62,6 +62,11 @@ class SelfAttentionLayer(nn.Module):
         key_layer = self.transpose_for_scores(mixed_key_layer)
         value_layer = self.transpose_for_scores(mixed_value_layer)
     
+        # Print out the shape after transpose_for_scores
+        print("Query Layer shape after transpose_for_scores:", query_layer.shape)
+        print("Key Layer shape after transpose_for_scores:", key_layer.shape)
+        print("Value Layer shape after transpose_for_scores:", value_layer.shape)
+    
         attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
         attention_scores = attention_scores / math.sqrt(self.attention_head_size)
         attention_scores = attention_scores + attention_mask
@@ -69,12 +74,19 @@ class SelfAttentionLayer(nn.Module):
         attention_probs = nn.Softmax(dim=-1)(attention_scores)
         attention_probs = self.dropout(attention_probs)
     
+        # Print out the shape after attention calculation
+        print("Attention Probs shape:", attention_probs.shape)
+    
         context_layer = torch.matmul(attention_probs, value_layer)
         context_layer = context_layer.permute(0, 2, 1, 3).contiguous()
         new_context_layer_shape = context_layer.size()[:-2] + (self.all_head_size,)
         context_layer = context_layer.view(*new_context_layer_shape)
     
+        # Print out the shape after context layer calculation
+        print("Context Layer shape:", context_layer.shape)
+    
         return context_layer
+
 
 
 
