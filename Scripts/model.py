@@ -38,15 +38,24 @@ class SelfAttentionLayer(nn.Module):
 
    
 
-#Added to resolve the dimension error
-    def transpose_for_scores(self, x):
+#Added to resolve the dimension error but not working so commenting off
+'''    def transpose_for_scores(self, x):
         print("Input shape:", x.shape)
         # Add an additional dimension to make it 4-dimensional
         x = x.unsqueeze(1)
         new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
         x = x.view(*new_x_shape)
         print("Reshaped shape:", x.shape)
+        return x.permute(0, 2, 1, 3) 
+        '''
+
+    def transpose_for_scores(self, x):
+        print("Input shape:", x.shape)
+        new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
+        x = x.view(*new_x_shape)
+        print("Reshaped shape:", x.shape)
         return x.permute(0, 2, 1, 3)
+
 
 
 
