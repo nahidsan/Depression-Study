@@ -11,6 +11,58 @@ np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 
+
+
+#Adding Attention Layer Nahid
+
+class SelfAttentionLayer(nn.Module):
+    def __init__(self, hidden_size, num_attention_heads, attention_dropout):
+        super(SelfAttentionLayer, self).__init__()
+        self.num_attention_heads = num_attention_heads
+        self.attention_head_size = int(hidden_size / num_attention_heads)
+        self.all_head_size = self.num_attention_heads * self.attention_head_size
+
+        self.query = nn.Linear(hidden_size, self.all_head_size)
+        self.key = nn.Linear(hidden_size, self.all_head_size)
+        self.value = nn.Linear(hidden_size, self.all_head_size)
+
+        self.dropout = nn.Dropout(attention_dropout)
+
+    def transpose_for_scores(self, x):
+        new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
+        x = x.view(*new_x_shape)
+        return x.permute(0, 2, 1, 3)
+
+    def forward(self, hidden_states, attention_mask):
+        mixed_query_layer = self.query(hidden_states)
+        mixed_key_layer = self.key(hidden_states)
+        mixed_value_layer = self.value(hidden_states)
+
+        query_layer = self.transpose_for_scores(mixed_query_layer)
+        key_layer = self.transpose_for_scores(mixed_key_layer)
+        value_layer = self.transpose_for_scores(mixed_value_layer)
+
+        attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
+        attention_scores = attention_scores / math.sqrt(self.attention_head_size)
+        attention_scores = attention_scores + attention_mask
+
+        attention_probs = nn.Softmax(dim=-1)(attention_scores)
+        attention_probs = self.dropout(attention_probs)
+
+        context_layer = torch.matmul(attention_probs, value_layer)
+        context_layer = context_layer.permute(0, 2, 1, 3).contiguous()
+        new_context_layer_shape = context_layer.size()[:-2] + (self.all_head_size,)
+        context_layer = context_layer.view(*new_context_layer_shape)
+
+        return context_layer
+
+
+
+
+
+
+
+
 class BertFGBC(nn.Module):
     def __init__(self, pretrained_model = args.pretrained_model):
         super().__init__()
@@ -139,7 +191,47 @@ class XLNetFGBC(nn.Module):
         return mean_last_hidden_state
     
 class AlbertFGBC(nn.Module): # Below lines newly added
+
+class AlbertFGBC(nn.Module):
     def __init__(self, pretrained_model = args.pretrained_model):
+        super().__init__()
+        self.Albert = AlbertModel.from_pretrained(pretrained_model)
+        self.attention = SelfAttentionLayer(args.albert_hidden, args.num_attention_heads, args.attention_dropout)
+        self.drop1 = nn.Dropout(args.dropout)
+        self.linear = nn.Linear(args.albert_hidden, 64)  # Adjust the input size for linear layer
+        self.batch_norm = nn.LayerNorm(64)
+        self.drop2 = nn.Dropout(args.dropout)
+        self.out = nn.Linear(64, args.classes)
+
+    def forward(self, input_ids, attention_mask):
+        _, last_hidden_state = self.Albert(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            return_dict=False
+        )
+
+        # Apply self-attention
+        attention_output = self.attention(last_hidden_state, attention_mask)
+
+        # Process attention output
+        bo = self.drop1(attention_output)
+        bo = self.linear(bo)
+        bo = self.batch_norm(bo)
+        bo = nn.Tanh()(bo)
+        bo = self.drop2(bo)
+
+        output = self.out(bo)
+
+        return output 
+        #upto this new code for attention layer
+
+
+
+
+
+    #below is old code by T 
+''' Commenting off for attention test
+def __init__(self, pretrained_model = args.pretrained_model):
         super().__init__()
         self.Albert = AlbertModel.from_pretrained(pretrained_model)
         self.drop1 = nn.Dropout(args.dropout)
@@ -164,3 +256,4 @@ class AlbertFGBC(nn.Module): # Below lines newly added
         output = self.out(bo)
 
         return output
+        '''
