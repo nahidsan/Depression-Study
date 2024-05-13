@@ -206,6 +206,51 @@ class XLNetFGBC(nn.Module):
         mean_last_hidden_state = torch.mean(last_hidden_state, 1)
         return mean_last_hidden_state
     
+
+
+class AlbertFGBC(nn.Module):
+    def __init__(self, pretrained_model=args.pretrained_model):
+        super().__init__()
+        self.Albert = AlbertModel.from_pretrained(pretrained_model)
+        self.attention = SelfAttentionLayer(args.albert_hidden, args.num_attention_heads, args.attention_dropout)
+        self.drop1 = nn.Dropout(args.dropout)
+        self.linear = nn.Linear(args.albert_hidden, 64)  # Adjust the input size for linear layer
+        self.batch_norm = nn.LayerNorm(64)
+        self.drop2 = nn.Dropout(args.dropout)
+        self.out = nn.Linear(64, args.classes)
+
+    def forward(self, input_ids, attention_mask):
+        _, last_hidden_state = self.Albert(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            return_dict=False
+        )
+        print(f'Albert Last Hidden State Shape: {last_hidden_state.shape}')
+
+        # Apply self-attention
+        attention_output = self.attention(last_hidden_state, attention_mask)
+        print(f'Self-Attention Output Shape: {attention_output.shape}')
+
+        # Process attention output
+        bo = self.drop1(attention_output)
+        bo = self.linear(bo)
+        print(f'Linear Output Shape: {bo.shape}')
+        
+        bo = self.batch_norm(bo)
+        bo = nn.Tanh()(bo)
+        bo = self.drop2(bo)
+        print(f'Final Output Shape: {bo.shape}')
+
+        output = self.out(bo)
+        print(f'Output Shape: {output.shape}')
+
+        return output
+
+
+
+
+'''commenting off this below block for debugging
+
 class AlbertFGBC(nn.Module): # Below lines newly added
 
     def __init__(self, pretrained_model = args.pretrained_model):
@@ -241,7 +286,7 @@ class AlbertFGBC(nn.Module): # Below lines newly added
         #upto this new code for attention layer
 
 
-
+'''
 
 
     #below is old code by T 
