@@ -49,7 +49,7 @@ class SelfAttentionLayer(nn.Module):
         return x.permute(0, 2, 1, 3) 
         '''
 
-    def transpose_for_scores(self, x):
+        def transpose_for_scores(self, x):
         print("Input shape:", x.shape)
         new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
         x = x.view(*new_x_shape)
