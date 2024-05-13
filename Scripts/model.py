@@ -39,6 +39,8 @@ class SelfAttentionLayer(nn.Module):
     def transpose_for_scores(self, x):
         print("Input shape:", x.shape)
         # Assuming x has shape (batch_size, seq_len, hidden_size)
+        if x.dim() == 2:
+            x = x.unsqueeze(1)
         batch_size, seq_len, hidden_size = x.size()
         new_x_shape = (batch_size, seq_len, self.num_attention_heads, self.attention_head_size)
         x = x.view(*new_x_shape)
@@ -53,6 +55,8 @@ class SelfAttentionLayer(nn.Module):
         query_layer = self.transpose_for_scores(mixed_query_layer)
         key_layer = self.transpose_for_scores(mixed_key_layer)
         value_layer = self.transpose_for_scores(mixed_value_layer)
+
+        
 
         # Rest of the forward method...
 
