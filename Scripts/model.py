@@ -38,16 +38,13 @@ class SelfAttentionLayer(nn.Module):
 
     def transpose_for_scores(self, x):
         print("Input shape:", x.shape)
-        new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
+        # Assuming x has shape (batch_size, seq_len, hidden_size)
+        batch_size, seq_len, hidden_size = x.size()
+        new_x_shape = (batch_size, seq_len, self.num_attention_heads, self.attention_head_size)
         x = x.view(*new_x_shape)
         print("Reshaped shape:", x.shape)
         return x.permute(0, 2, 1, 3)
 
-
-
-
-
-    
     def forward(self, hidden_states, attention_mask):
         mixed_query_layer = self.query(hidden_states)
         mixed_key_layer = self.key(hidden_states)
@@ -56,6 +53,9 @@ class SelfAttentionLayer(nn.Module):
         query_layer = self.transpose_for_scores(mixed_query_layer)
         key_layer = self.transpose_for_scores(mixed_key_layer)
         value_layer = self.transpose_for_scores(mixed_value_layer)
+
+        # Rest of the forward method...
+
 
         attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
         attention_scores = attention_scores / math.sqrt(self.attention_head_size)
