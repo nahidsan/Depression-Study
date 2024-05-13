@@ -192,7 +192,6 @@ class XLNetFGBC(nn.Module):
     
 class AlbertFGBC(nn.Module): # Below lines newly added
 
-class AlbertFGBC(nn.Module):
     def __init__(self, pretrained_model = args.pretrained_model):
         super().__init__()
         self.Albert = AlbertModel.from_pretrained(pretrained_model)
