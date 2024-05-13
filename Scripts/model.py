@@ -68,10 +68,13 @@ class SelfAttentionLayer(nn.Module):
         attention_scores = attention_scores / math.sqrt(self.attention_head_size)
         attention_scores = attention_scores + attention_mask
     
+        # Print out the shape after attention calculation
+        print("Attention Scores shape:", attention_scores.shape)
+    
         attention_probs = nn.Softmax(dim=-1)(attention_scores)
         attention_probs = self.dropout(attention_probs)
     
-        # Print out the shape after attention calculation
+        # Print out the shape after softmax operation
         print("Attention Probs shape:", attention_probs.shape)
     
         context_layer = torch.matmul(attention_probs, value_layer)
@@ -83,6 +86,7 @@ class SelfAttentionLayer(nn.Module):
         print("Context Layer shape:", context_layer.shape)
     
         return context_layer
+
 
 
 
