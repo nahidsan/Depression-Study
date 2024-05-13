@@ -36,20 +36,20 @@ class SelfAttentionLayer(nn.Module):
 
 
    def transpose_for_scores(self, x):
-    print("Input shape:", x.shape)
-    if x.dim() == 3:
-        # If the input tensor has shape [batch_size, seq_len, hidden_size]
-        batch_size, seq_len, hidden_size = x.size()
-        new_x_shape = (batch_size, 1, seq_len, hidden_size)
-        x = x.view(*new_x_shape)
-        x = x.permute(0, 1, 3, 2)
-    elif x.dim() == 4:
-        # If the input tensor has shape [batch_size, seq_len, num_attention_heads, attention_head_size]
-        x = x.permute(0, 2, 1, 3)
-    else:
-        raise ValueError("Input tensor has unexpected shape")
-    print("Reshaped shape:", x.shape)
-    return x
+       print("Input shape:", x.shape)
+       if x.dim() == 3:
+           # If the input tensor has shape [batch_size, seq_len, hidden_size]
+           batch_size, seq_len, hidden_size = x.size()
+           new_x_shape = (batch_size, 1, seq_len, hidden_size)
+           x = x.view(*new_x_shape)
+           x = x.permute(0, 1, 3, 2)
+       elif x.dim() == 4:
+           # If the input tensor has shape [batch_size, seq_len, num_attention_heads, attention_head_size]
+           x = x.permute(0, 2, 1, 3)
+       else:
+           raise ValueError("Input tensor has unexpected shape")
+        print("Reshaped shape:", x.shape)
+        return x
 
 
     
