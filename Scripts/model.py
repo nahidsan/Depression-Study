@@ -84,13 +84,13 @@ class SelfAttentionLayer(nn.Module):
 
 
     def transpose_for_scores(self, x):
-    print("Input shape:", x.shape)
+        print("Input shape:", x.shape)
     # Add an additional dimension to make it 4-dimensional
-    x = x.unsqueeze(1)
-    new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
-    x = x.view(*new_x_shape)
-    print("Reshaped shape:", x.shape)
-    return x.permute(0, 2, 1, 3)
+        x = x.unsqueeze(1)
+        new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
+        x = x.view(*new_x_shape)
+        print("Reshaped shape:", x.shape)
+        return x.permute(0, 2, 1, 3)
 
 
     
