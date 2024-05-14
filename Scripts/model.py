@@ -37,7 +37,7 @@ class SelfAttentionLayer(nn.Module):
         # Print the actual input shape before reshaping
         print("Input shape before reshape:", x.shape)
         # ... rest of your code calculating new_x_shape
-        
+        new_x_shape = (x.size(0), self.num_attention_heads, self.attention_head_size, x.size(1) // (self.num_attention_heads * self.attention_head_size))
         # Print the calculated expected shape
         print("Expected reshaped shape:", new_x_shape)
         
