@@ -48,7 +48,7 @@ class SelfAttentionLayer(nn.Module):
           print("Actual reshaped shape:", x.shape)
           return x.permute(0, 2, 1, 3)
 
-   ''' 
+    ''' 
     def transpose_for_scores(self, x):
         #print("Input shape:", x.shape)
         #new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
@@ -57,7 +57,7 @@ class SelfAttentionLayer(nn.Module):
         x = x.view(*new_x_shape)
         #print("Actual reshaped shape:", x.shape)
         return x.permute(0, 2, 1, 3)
-'''
+    '''
 
 
     def forward(self, hidden_states, attention_mask):
