@@ -40,6 +40,13 @@ class SelfAttentionLayer(nn.Module):
 
         attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
         attention_scores = attention_scores / math.sqrt(self.attention_head_size)
+
+        # Adjust attention mask shape
+        if attention_mask.dim() == 3:
+            attention_mask = attention_mask[:, None, :, :]
+        elif attention_mask.dim() == 2:
+            attention_mask = attention_mask[:, None, None, :]
+
         attention_scores = attention_scores + attention_mask
 
         attention_probs = nn.Softmax(dim=-1)(attention_scores)
@@ -89,7 +96,7 @@ class AlbertFGBC(nn.Module):
         return output
 
 class BertFGBC(nn.Module):
-    def __init__(self, pretrained_model = args.pretrained_model):
+    def __init__(self, pretrained_model=args.pretrained_model):
         super().__init__()
         self.Bert = BertModel.from_pretrained(pretrained_model)
         self.drop1 = nn.Dropout(args.dropout)
@@ -99,12 +106,13 @@ class BertFGBC(nn.Module):
         self.out = nn.Linear(64, args.classes)
 
     def forward(self, input_ids, attention_mask, token_type_ids):
-        _, last_hidden_state = self.Bert(
+        outputs = self.Bert(
             input_ids=input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
             return_dict=False
         )
+        last_hidden_state = outputs[0]
         bo = self.drop1(last_hidden_state)
         bo = self.linear(bo)
         bo = self.batch_norm(bo)
@@ -114,7 +122,7 @@ class BertFGBC(nn.Module):
         return output
 
 class RobertaFGBC(nn.Module):
-    def __init__(self, pretrained_model = args.pretrained_model):
+    def __init__(self, pretrained_model=args.pretrained_model):
         super().__init__()
         self.Roberta = RobertaModel.from_pretrained(pretrained_model)
         self.drop1 = nn.Dropout(args.dropout)
@@ -124,11 +132,12 @@ class RobertaFGBC(nn.Module):
         self.out = nn.Linear(64, args.classes)
 
     def forward(self, input_ids, attention_mask):
-        _, last_hidden_state = self.Roberta(
+        outputs = self.Roberta(
             input_ids=input_ids,
             attention_mask=attention_mask,
             return_dict=False
         )
+        last_hidden_state = outputs[0]
         bo = self.drop1(last_hidden_state)
         bo = self.linear(bo)
         bo = self.batch_norm(bo)
@@ -138,7 +147,7 @@ class RobertaFGBC(nn.Module):
         return output
 
 class DistilBertFGBC(nn.Module):
-    def __init__(self, pretrained_model = args.pretrained_model):
+    def __init__(self, pretrained_model=args.pretrained_model):
         super().__init__()
         self.DistilBert = DistilBertModel.from_pretrained(pretrained_model)
         self.drop1 = nn.Dropout(args.dropout)
@@ -148,11 +157,12 @@ class DistilBertFGBC(nn.Module):
         self.out = nn.Linear(64, args.classes)
 
     def forward(self, input_ids, attention_mask):
-        last_hidden_state = self.DistilBert(
+        outputs = self.DistilBert(
             input_ids=input_ids,
             attention_mask=attention_mask,
             return_dict=False
         )
+        last_hidden_state = outputs[0]
         mean_last_hidden_state = self.pool_hidden_state(last_hidden_state)
         bo = self.drop1(mean_last_hidden_state)
         bo = self.linear(bo)
@@ -167,7 +177,7 @@ class DistilBertFGBC(nn.Module):
         return mean_last_hidden_state
 
 class XLNetFGBC(nn.Module):
-    def __init__(self, pretrained_model = args.pretrained_model):
+    def __init__(self, pretrained_model=args.pretrained_model):
         super().__init__()
         self.XLNet = XLNetModel.from_pretrained(pretrained_model)
         self.drop1 = nn.Dropout(args.dropout)
@@ -177,12 +187,13 @@ class XLNetFGBC(nn.Module):
         self.out = nn.Linear(64, args.classes)
 
     def forward(self, input_ids, attention_mask, token_type_ids):
-        last_hidden_state = self.XLNet(
+        outputs = self.XLNet(
             input_ids=input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
             return_dict=False
         )
+        last_hidden_state = outputs[0]
         mean_last_hidden_state = self.pool_hidden_state(last_hidden_state)
         bo = self.drop1(mean_last_hidden_state)
         bo = self.linear(bo)
