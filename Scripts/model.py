@@ -33,11 +33,11 @@ class SelfAttentionLayer(nn.Module):
         self.dropout = nn.Dropout(attention_dropout)
 
 
-    def transpose_for_scores(self, x):
+    def transpose_for_scores(self, x, seq_len):
         """Reshape x for attention scores calculation."""
         if x.dim() == 2:
             x = x.unsqueeze(1)  # Add an extra dimension if input has only two dimensions
-        batch_size, seq_len, hidden_size = x.size()
+        batch_size, hidden_size = x.size()
         new_x_shape = (batch_size, self.num_attention_heads, self.attention_head_size, seq_len)
         x = x.view(*new_x_shape)
         return x.permute(0, 2, 1, 3)  # Permute to achieve (batch_size, num_attention_heads, attention_head_size, seq_len)
@@ -327,17 +327,32 @@ class AlbertFGBC(nn.Module):
         self.drop2 = nn.Dropout(args.dropout)
         self.out = nn.Linear(64, args.classes)
 
+    
     def forward(self, input_ids, attention_mask):
         _, last_hidden_state = self.Albert(
             input_ids=input_ids,
             attention_mask=attention_mask,
             return_dict=False
-        )
-        print(f'Albert Last Hidden State Shape: {last_hidden_state.shape}')
+            )
+            seq_len = last_hidden_state.size(1)  # Get sequence length from hidden state
+            
+            # Apply self-attention with sequence length
+        attention_output = self.attention(last_hidden_state, attention_mask, seq_len)
+            # ... rest of your code
+            print(f'Self-Attention Output Shape: {attention_output.shape}')
+    
+    
+    #def forward(self, input_ids, attention_mask):
+       # _, last_hidden_state = self.Albert(
+       #     input_ids=input_ids,
+        #    attention_mask=attention_mask,
+         #   return_dict=False
+        #)
+        #print(f'Albert Last Hidden State Shape: {last_hidden_state.shape}')
 
         # Apply self-attention
-        attention_output = self.attention(last_hidden_state, attention_mask)
-        print(f'Self-Attention Output Shape: {attention_output.shape}')
+       # attention_output = self.attention(last_hidden_state, attention_mask)
+        
 
         # Process attention output
         bo = self.drop1(attention_output)
