@@ -327,6 +327,7 @@ class AlbertFGBC(nn.Module):
         self.drop2 = nn.Dropout(args.dropout)
         self.out = nn.Linear(64, args.classes)
 
+
     
     def forward(self, input_ids, attention_mask):
         _, last_hidden_state = self.Albert(
@@ -337,13 +338,15 @@ class AlbertFGBC(nn.Module):
         seq_len = last_hidden_state.size(1)  # Get sequence length from hidden state
         print(f"Obtained sequence length: {seq_len}")  # Verify seq_len value
 
-        query_layer = self.transpose_for_scores(mixed_query_layer, seq_len)
-        key_layer = self.transpose_for_scores(mixed_key_layer, seq_len)
-        value_layer = self.transpose_for_scores(mixed_value_layer, seq_len)
-        print(f"Query Layer shape after transpose: {query_layer.shape}")  # Verify shapes
+        query_layer = self.attention.transpose_for_scores(mixed_query_layer, seq_len)  # Call from self.attention
+        key_layer = self.attention.transpose_for_scores(mixed_key_layer, seq_len)
+        value_layer = self.attention.transpose_for_scores(mixed_value_layer, seq_len)
+    
+        print(f"Query Layer shape after transpose: {query_layer.shape}")
         print(f"Key Layer shape after transpose: {key_layer.shape}")
         print(f"Value Layer shape after transpose: {value_layer.shape}")
-       
+        
+    
             
             # Apply self-attention with sequence length
         attention_output = self.attention(last_hidden_state, attention_mask)
@@ -422,7 +425,7 @@ class AlbertFGBC(nn.Module): # Below lines newly added
 '''
 
 
-    #below is old code by T 
+    #below is old code
 ''' Commenting off for attention test
 def __init__(self, pretrained_model = args.pretrained_model):
         super().__init__()
