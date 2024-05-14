@@ -40,9 +40,9 @@ class SelfAttentionLayer(nn.Module):
         x = x.view(*new_x_shape)
         return x.permute(0, 2, 1, 3)  # Permute to achieve (batch_size, num_attention_heads, attention_head_size, seq_len)
 
-
     def forward(self, hidden_states, attention_mask):
-        mixed_query_layer = self.query(hidden_states)  # Apply linear transformation (Update 1)
+        # Define mixed_query_layer, mixed_key_layer, mixed_value_layer before using them
+        mixed_query_layer = self.query(hidden_states)
         mixed_key_layer = self.key(hidden_states)
         mixed_value_layer = self.value(hidden_states)
 
@@ -73,14 +73,13 @@ class SelfAttentionLayer(nn.Module):
         # Print out the shape after softmax operation
         print("Attention Probs shape:", attention_probs.shape)
 
-
         context_layer = torch.matmul(attention_probs, value_layer)
 
         # After context_layer = torch.matmul(attention_probs, value_layer)
-        new_context_layer_shape = (context_layer.size(0), self.all_head)
+        new_context_layer_shape = (context_layer.size(0), self.all_head_size)
 
-    
         return context_layer
+
 
 
 
