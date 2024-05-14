@@ -34,6 +34,18 @@ class SelfAttentionLayer(nn.Module):
 
 
     def transpose_for_scores(self, x):
+        """Reshape x for attention scores calculation."""
+        if x.dim() == 2:
+            x = x.unsqueeze(1)  # Add an extra dimension if input has only two dimensions
+        batch_size, seq_len, hidden_size = x.size()
+        new_x_shape = (batch_size, self.num_attention_heads, self.attention_head_size, seq_len)
+        x = x.view(*new_x_shape)
+        return x.permute(0, 2, 1, 3)  # Permute to achieve (batch_size, num_attention_heads, attention_head_size, seq_len)
+
+
+    
+    '''
+    def transpose_for_scores(self, x):
         # Print the actual input shape before reshaping
         print("Input shape before reshape:", x.shape)
         # ... rest of your code calculating new_x_shape
@@ -47,6 +59,7 @@ class SelfAttentionLayer(nn.Module):
         x = x.view(*new_x_shape)
         print("Actual reshaped shape:", x.shape)
         return x.permute(0, 2, 1, 3)
+    '''
 
     ''' 
     def transpose_for_scores(self, x):
