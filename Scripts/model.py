@@ -77,11 +77,18 @@ class SelfAttentionLayer(nn.Module):
     
         # Print out the shape after softmax operation
         print("Attention Probs shape:", attention_probs.shape)
+
+
     
         context_layer = torch.matmul(attention_probs, value_layer)
-        context_layer = context_layer.permute(0, 2, 1, 3).contiguous()
-        new_context_layer_shape = context_layer.size()[:-2] + (self.all_head_size,)
+        
+        # After context_layer = torch.matmul(attention_probs, value_layer)
+        new_context_layer_shape = (context_layer.size(0), self.all_head_size) + context_layer.size()[1:]
         context_layer = context_layer.view(*new_context_layer_shape)
+
+        #context_layer = context_layer.permute(0, 2, 1, 3).contiguous()
+        #new_context_layer_shape = context_layer.size()[:-2] + (self.all_head_size,)
+        #context_layer = context_layer.view(*new_context_layer_shape)
     
         # Print out the shape after context layer calculation
         print("Context Layer shape:", context_layer.shape)
