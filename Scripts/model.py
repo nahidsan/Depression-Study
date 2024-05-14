@@ -6,8 +6,6 @@ from transformers import BertModel, RobertaModel, XLNetModel, DistilBertModel, A
 
 from common import get_parser
 
-# Rest of your code...
-
 
 
 parser = get_parser()
@@ -18,7 +16,7 @@ torch.cuda.manual_seed(args.seed)
 
 
 
-#Adding Attention Layer Nahid
+#Adding Attention Layer
 
 
 class SelfAttentionLayer(nn.Module):
@@ -34,7 +32,23 @@ class SelfAttentionLayer(nn.Module):
 
         self.dropout = nn.Dropout(attention_dropout)
 
-    
+
+    def transpose_for_scores(self, x):
+          # Print the actual input shape before reshaping
+          print("Input shape before reshape:", x.shape)
+          # ... rest of your code calculating new_x_shape
+        
+          # Print the calculated expected shape
+          print("Expected reshaped shape:", new_x_shape)
+        
+          # ... rest of your code
+        
+          # Print the actual shape after reshape (causing the error)
+          x = x.view(*new_x_shape)
+          print("Actual reshaped shape:", x.shape)
+          return x.permute(0, 2, 1, 3)
+
+   ''' 
     def transpose_for_scores(self, x):
         #print("Input shape:", x.shape)
         #new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
@@ -43,7 +57,7 @@ class SelfAttentionLayer(nn.Module):
         x = x.view(*new_x_shape)
         #print("Actual reshaped shape:", x.shape)
         return x.permute(0, 2, 1, 3)
-
+'''
 
 
     def forward(self, hidden_states, attention_mask):
@@ -94,11 +108,6 @@ class SelfAttentionLayer(nn.Module):
         print("Context Layer shape:", context_layer.shape)
     
         return context_layer
-
-
-
-
-
 
 
 
