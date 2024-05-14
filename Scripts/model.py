@@ -334,12 +334,12 @@ class AlbertFGBC(nn.Module):
             attention_mask=attention_mask,
             return_dict=False
             )
-            seq_len = last_hidden_state.size(1)  # Get sequence length from hidden state
+        seq_len = last_hidden_state.size(1)  # Get sequence length from hidden state
             
             # Apply self-attention with sequence length
         attention_output = self.attention(last_hidden_state, attention_mask, seq_len)
             # ... rest of your code
-            print(f'Self-Attention Output Shape: {attention_output.shape}')
+        print(f'Self-Attention Output Shape: {attention_output.shape}')
     
     
     #def forward(self, input_ids, attention_mask):
