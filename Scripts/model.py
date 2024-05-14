@@ -34,19 +34,19 @@ class SelfAttentionLayer(nn.Module):
 
 
     def transpose_for_scores(self, x):
-          # Print the actual input shape before reshaping
-          print("Input shape before reshape:", x.shape)
-          # ... rest of your code calculating new_x_shape
+        # Print the actual input shape before reshaping
+        print("Input shape before reshape:", x.shape)
+        # ... rest of your code calculating new_x_shape
         
-          # Print the calculated expected shape
-          print("Expected reshaped shape:", new_x_shape)
+        # Print the calculated expected shape
+        print("Expected reshaped shape:", new_x_shape)
         
-          # ... rest of your code
+        # ... rest of your code
         
-          # Print the actual shape after reshape (causing the error)
-          x = x.view(*new_x_shape)
-          print("Actual reshaped shape:", x.shape)
-          return x.permute(0, 2, 1, 3)
+        # Print the actual shape after reshape (causing the error)
+        x = x.view(*new_x_shape)
+        print("Actual reshaped shape:", x.shape)
+        return x.permute(0, 2, 1, 3)
 
     ''' 
     def transpose_for_scores(self, x):
