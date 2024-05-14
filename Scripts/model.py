@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 import numpy as np
 import math  # Add this line
-from transformers import BertModel, RobertaModel, XLNetModel, DistilBertModel, AlbertModel  #newly Added
+
+from transformers import BertModel, RobertaModel, XLNetModel, DistilBertModel, AlbertModel  # Newly Added
 
 from common import get_parser
-
 
 
 parser = get_parser()
@@ -15,8 +15,7 @@ torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 
 
-
-#Adding Attention Layer
+# Adding Attention Layer
 
 
 class SelfAttentionLayer(nn.Module):
@@ -32,7 +31,6 @@ class SelfAttentionLayer(nn.Module):
 
         self.dropout = nn.Dropout(attention_dropout)
 
-
     def transpose_for_scores(self, x, seq_len):
         """Reshape x for attention scores calculation."""
         if x.dim() == 2:
@@ -43,82 +41,44 @@ class SelfAttentionLayer(nn.Module):
         return x.permute(0, 2, 1, 3)  # Permute to achieve (batch_size, num_attention_heads, attention_head_size, seq_len)
 
 
-    
-    '''
-    def transpose_for_scores(self, x):
-        # Print the actual input shape before reshaping
-        print("Input shape before reshape:", x.shape)
-        # ... rest of the code calculating new_x_shape
-        new_x_shape = (x.size(0), self.num_attention_heads, self.attention_head_size, x.size(1) // (self.num_attention_heads * self.attention_head_size))
-        # Print the calculated expected shape
-        print("Expected reshaped shape:", new_x_shape)
-        
-        
-        
-        # Print the actual shape after reshape (causing the error)
-        x = x.view(*new_x_shape)
-        print("Actual reshaped shape:", x.shape)
-        return x.permute(0, 2, 1, 3)
-    '''
-
-    ''' 
-    def transpose_for_scores(self, x):
-        #print("Input shape:", x.shape)
-        #new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
-        new_x_shape = (x.size(0), self.num_attention_heads, self.attention_head_size) + x.size()[1:]
-        print("Expected reshaped shape:", new_x_shape)
-        x = x.view(*new_x_shape)
-        #print("Actual reshaped shape:", x.shape)
-        return x.permute(0, 2, 1, 3)
-    '''
-
-
     def forward(self, hidden_states, attention_mask):
-        mixed_query_layer = self.query(hidden_states)
+        mixed_query_layer = self.query(hidden_states)  # Apply linear transformation (Update 1)
         mixed_key_layer = self.key(hidden_states)
         mixed_value_layer = self.value(hidden_states)
-    
+
         # Print out the shape of the mixed query, key, and value layers
         print("Mixed Query Layer shape:", mixed_query_layer.shape)
         print("Mixed Key Layer shape:", mixed_key_layer.shape)
         print("Mixed Value Layer shape:", mixed_value_layer.shape)
-    
-        query_layer = self.transpose_for_scores(mixed_query_layer)
-        key_layer = self.transpose_for_scores(mixed_key_layer)
-        value_layer = self.transpose_for_scores(mixed_value_layer)
-    
+
+        query_layer = self.transpose_for_scores(mixed_query_layer, hidden_states.size(1))  # Use hidden_states.size(1) for seq_len (Update 2)
+        key_layer = self.transpose_for_scores(mixed_key_layer, hidden_states.size(1))
+        value_layer = self.transpose_for_scores(mixed_value_layer, hidden_states.size(1))
+
         # Print out the shape after transpose_for_scores
         print("Query Layer shape after transpose_for_scores:", query_layer.shape)
         print("Key Layer shape after transpose_for_scores:", key_layer.shape)
         print("Value Layer shape after transpose_for_scores:", value_layer.shape)
-    
+
         attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
         attention_scores = attention_scores / math.sqrt(self.attention_head_size)
         attention_scores = attention_scores + attention_mask
-    
+
         # Print out the shape after attention calculation
         print("Attention Scores shape:", attention_scores.shape)
-    
+
         attention_probs = nn.Softmax(dim=-1)(attention_scores)
         attention_probs = self.dropout(attention_probs)
-    
+
         # Print out the shape after softmax operation
         print("Attention Probs shape:", attention_probs.shape)
 
 
-    
         context_layer = torch.matmul(attention_probs, value_layer)
-        
-        # After context_layer = torch.matmul(attention_probs, value_layer)
-        new_context_layer_shape = (context_layer.size(0), self.all_head_size) + context_layer.size()[1:]
-        context_layer = context_layer.view(*new_context_layer_shape)
 
-        #context_layer = context_layer.permute(0, 2, 1, 3).contiguous()
-        #new_context_layer_shape = context_layer.size()[:-2] + (self.all_head_size,)
-        #context_layer = context_layer.view(*new_context_layer_shape)
-    
-        # Print out the shape after context layer calculation
-        print("Context Layer shape:", context_layer.shape)
+        # After context_layer = torch.matmul(attention_probs, value_layer)
+        new_context_layer_shape = (context_layer.size(0), self.all_head
+
     
         return context_layer
 
