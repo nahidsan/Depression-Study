@@ -77,7 +77,7 @@ class SelfAttentionLayer(nn.Module):
         context_layer = torch.matmul(attention_probs, value_layer)
 
         # After context_layer = torch.matmul(attention_probs, value_layer)
-        new_context_layer_shape = (context_layer.size(0), self.all_head
+        new_context_layer_shape = (context_layer.size(0), self.all_head)
 
     
         return context_layer
