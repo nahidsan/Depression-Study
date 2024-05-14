@@ -48,12 +48,12 @@ class SelfAttentionLayer(nn.Module):
     def transpose_for_scores(self, x):
         # Print the actual input shape before reshaping
         print("Input shape before reshape:", x.shape)
-        # ... rest of your code calculating new_x_shape
+        # ... rest of the code calculating new_x_shape
         new_x_shape = (x.size(0), self.num_attention_heads, self.attention_head_size, x.size(1) // (self.num_attention_heads * self.attention_head_size))
         # Print the calculated expected shape
         print("Expected reshaped shape:", new_x_shape)
         
-        # ... rest of your code
+        
         
         # Print the actual shape after reshape (causing the error)
         x = x.view(*new_x_shape)
@@ -335,10 +335,19 @@ class AlbertFGBC(nn.Module):
             return_dict=False
             )
         seq_len = last_hidden_state.size(1)  # Get sequence length from hidden state
+        print(f"Obtained sequence length: {seq_len}")  # Verify seq_len value
+
+        query_layer = self.transpose_for_scores(mixed_query_layer, seq_len)
+        key_layer = self.transpose_for_scores(mixed_key_layer, seq_len)
+        value_layer = self.transpose_for_scores(mixed_value_layer, seq_len)
+        print(f"Query Layer shape after transpose: {query_layer.shape}")  # Verify shapes
+        print(f"Key Layer shape after transpose: {key_layer.shape}")
+        print(f"Value Layer shape after transpose: {value_layer.shape}")
+       
             
             # Apply self-attention with sequence length
         attention_output = self.attention(last_hidden_state, attention_mask)
-            # ... rest of your code
+       
         print(f'Self-Attention Output Shape: {attention_output.shape}')
 
 
