@@ -227,51 +227,33 @@ class AlbertFGBC(nn.Module):
         self.drop2 = nn.Dropout(args.dropout)
         self.out = nn.Linear(64, args.classes)
 
-
-    
     def forward(self, input_ids, attention_mask):
         _, last_hidden_state = self.Albert(
             input_ids=input_ids,
             attention_mask=attention_mask,
             return_dict=False
-            )
-        seq_len = last_hidden_state.size(1)  # Get sequence length from hidden state
-        print(f"Obtained sequence length: {seq_len}")  # Verify seq_len value
+        )
 
-        query_layer = self.attention.transpose_for_scores(mixed_query_layer, seq_len)  # Call from self.attention
-        key_layer = self.attention.transpose_for_scores(mixed_key_layer, seq_len)
-        value_layer = self.attention.transpose_for_scores(mixed_value_layer, seq_len)
-    
+        seq_len = last_hidden_state.size(1)  # Get sequence length from hidden state
+
+        query_layer = self.attention.transpose_for_scores(last_hidden_state, seq_len)  # Use last_hidden_state
+        key_layer = self.attention.transpose_for_scores(last_hidden_state, seq_len)
+        value_layer = self.attention.transpose_for_scores(last_hidden_state, seq_len)
+
         print(f"Query Layer shape after transpose: {query_layer.shape}")
         print(f"Key Layer shape after transpose: {key_layer.shape}")
         print(f"Value Layer shape after transpose: {value_layer.shape}")
-        
-    
-            
-            # Apply self-attention with sequence length
-        attention_output = self.attention(last_hidden_state, attention_mask)
-       
-        print(f'Self-Attention Output Shape: {attention_output.shape}')
-
-
-    
-    #def forward(self, input_ids, attention_mask):
-       # _, last_hidden_state = self.Albert(
-       #     input_ids=input_ids,
-        #    attention_mask=attention_mask,
-         #   return_dict=False
-        #)
-        #print(f'Albert Last Hidden State Shape: {last_hidden_state.shape}')
 
         # Apply self-attention
-       # attention_output = self.attention(last_hidden_state, attention_mask)
-        
+        attention_output = self.attention(last_hidden_state, attention_mask)
+
+        print(f'Self-Attention Output Shape: {attention_output.shape}')
 
         # Process attention output
         bo = self.drop1(attention_output)
         bo = self.linear(bo)
         print(f'Linear Output Shape: {bo.shape}')
-        
+
         bo = self.batch_norm(bo)
         bo = nn.Tanh()(bo)
         bo = self.drop2(bo)
@@ -281,6 +263,7 @@ class AlbertFGBC(nn.Module):
         print(f'Output Shape: {output.shape}')
 
         return output
+
 
 
 
