@@ -342,10 +342,7 @@ class AlbertFGBC(nn.Module):
         print(f'Self-Attention Output Shape: {attention_output.shape}')
 
 
-        def forward(self, input_ids, attention_mask):
-  
-
-    
+    def forward(self, input_ids, attention_mask):
     #def forward(self, input_ids, attention_mask):
        # _, last_hidden_state = self.Albert(
        #     input_ids=input_ids,
