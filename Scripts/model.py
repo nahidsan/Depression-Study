@@ -5,12 +5,17 @@ import math
 from transformers import BertModel, RobertaModel, XLNetModel, DistilBertModel, AlbertModel
 from common import get_parser
 
+# Parsing arguments from command line
 parser = get_parser()
 args = parser.parse_args()
+
+# Setting random seeds for reproducibility
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 
+
+#Adding Self-attention layer to compute attention scores while applying them to the input embeddings
 class SelfAttentionLayer(nn.Module):
     def __init__(self, hidden_size, num_attention_heads, attention_dropout):
         super(SelfAttentionLayer, self).__init__()
