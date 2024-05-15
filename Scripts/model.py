@@ -159,6 +159,7 @@ class RobertaFGBC(nn.Module):
 
         return output
 
+'''
 class DistilBertFGBC(nn.Module):
     def __init__(self, pretrained_model = args.pretrained_model):
         super().__init__()
@@ -192,6 +193,42 @@ class DistilBertFGBC(nn.Module):
         last_hidden_state = last_hidden_state[0]
         mean_last_hidden_state = torch.mean(last_hidden_state, 1)
         return mean_last_hidden_state
+'''
+
+class DistilBertFGBC(nn.Module):
+    def __init__(self, pretrained_model = args.pretrained_model):
+        super().__init__()
+        self.DistilBert = DistilBertModel.from_pretrained(pretrained_model)
+        self.drop1 = nn.Dropout(args.dropout)
+        self.linear = nn.Linear(args.distilbert_hidden, 64)
+        self.batch_norm = nn.LayerNorm(64)
+        self.drop2 = nn.Dropout(args.dropout)
+        self.out = nn.Linear(64, args.classes)
+
+    def forward(self, input_ids, attention_mask):
+        last_hidden_state = self.DistilBert(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            return_dict=False
+        )
+
+        mean_last_hidden_state = self.pool_hidden_state(last_hidden_state)
+        
+        bo = self.drop1(mean_last_hidden_state)
+        bo = self.linear(bo)
+        bo = self.batch_norm(bo)
+        bo = nn.Tanh()(bo)
+        bo = self.drop2(bo)
+
+        output = self.out(bo)
+
+        return output
+
+    def pool_hidden_state(self, last_hidden_state):
+        last_hidden_state = last_hidden_state[0]
+        mean_last_hidden_state = torch.mean(last_hidden_state, 1)
+        return mean_last_hidden_state
+
 
 class XLNetFGBC(nn.Module):
     def __init__(self, pretrained_model = args.pretrained_model):
