@@ -137,7 +137,7 @@ def oneHot(arr):
     return b
 
 def calc_roc_auc(all_labels, all_logits):
-    #attributes = ['non-depressed','mild', 'moderate', 'severe']
+    '''attributes = ['non-depressed','mild', 'moderate', 'severe']'''
     attributes = ['negative','neutral', 'positive']
     all_labels = oneHot(all_labels)
 
