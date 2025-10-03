@@ -138,7 +138,7 @@ def oneHot(arr):
 
 def calc_roc_auc(all_labels, all_logits):
     attributes = ['non-depressed','mild', 'moderate', 'severe']
-    '''attributes = ['negative','neutral', 'positive']'''
+    # attributes = ['negative','neutral', 'positive']
     all_labels = oneHot(all_labels)
 
     # Compute ROC curve and ROC area for each class
